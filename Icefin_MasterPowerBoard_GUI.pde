@@ -37,13 +37,14 @@ color on = color(84, 145, 158);
 boolean enabled = false;
 ArrayList<Pin> pinList = new ArrayList<Pin>(8);
 Table table;
+int phase = 0;
+int count = 0;
 
 void setup() {
   size(940, 280);
 
   // Prints out the available serial ports.
   println(Arduino.list());
-
   arduino = new Arduino(this, "/dev/tty.usbmodem1431", 57600);
   // Use the name of the serial port corresponding to your 
   // Arduino (in double-quotes), as in the following line.
@@ -120,6 +121,8 @@ void draw() {
 
 void testPins(){
   for (int i = 0; i < pinList.size(); i++){
+    println("waiting...");
+    delay(15000);
     Pin pin = pinList.get(i);
     println("Begin testing: " + pin.name);
     if (pin.type == "analog"){
@@ -132,12 +135,21 @@ void testPins(){
       pin.dWrite("HIGH");
       pin.printPin();
       println("Reading: " + pin.dRead());
+      println("waiting...");
+      delay(15000);
       println("Testing LOW");
       pin.printPin();
       pin.dWrite("LOW");
       pin.printPin();
       println("Reading: " + pin.dRead());
+      }
     }
+  }
+
+void keyPressed(){
+  if (keyPressed){
+    count += 1;
+    phase = count%2;
   }
 }
 
