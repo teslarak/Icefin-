@@ -34,7 +34,7 @@ Arduino arduino;
 
 color off = color(4, 79, 111);
 color on = color(84, 145, 158);
-boolean enabled;
+boolean enabled = false;
 ArrayList<Pin> pinList = new ArrayList<Pin>(8);
 Table table;
 
@@ -48,7 +48,6 @@ void setup() {
   // Use the name of the serial port corresponding to your 
   // Arduino (in double-quotes), as in the following line.
   // arduino = new Arduino(this, "/dev/tty.usbmodem621", 57600);
-   
   pinList.add(pinA0);
   pinList.add(pinA1);
   pinList.add(pinA2);
@@ -57,11 +56,17 @@ void setup() {
   pinList.add(pin4);
   pinList.add(pin5);
   pinList.add(pin6);
-  for (int i = 0; i < 8 ; i++){
-    pinList.get(i).begin();}
-  disable();
-  //IMPORTANT: pin6 aka OPTO_EN must be HIGH before enabling
-  arduino.digitalWrite(pin6.pinNumber, arduino.HIGH);
+  //pin6.printPin();
+  //disable();
+  //for (int i = 0; i < 8 ; i++){
+  // pinList.get(i).begin();}
+  //pin6.setpinInOut("OUTPUT");
+  //pin6.dWrite("LOW"); 
+  //pin6.printPin();
+  //pin6.dWrite("HIGH");
+  //pin6.printPin();
+  ////IMPORTANT: pin6 aka OPTO_EN must be HIGH before enabling
+  testPins();
 }
 
 void draw() {
@@ -84,9 +89,11 @@ void draw() {
     if (arduino.digitalRead(i+3) == Arduino.HIGH){
       fill(on);
       text("HIGH",158, 90 + i * 40);
+      pinList.get(i+3).state = "HIGH";
     }
     else {
       text("LOW",158, 90 + i * 40);
+      pinList.get(i+3).state = "LOW";
       fill(off);
     }
     rect(130, 75 + i * 40, 20, 20);
@@ -111,29 +118,69 @@ void draw() {
   rect(480, 80, 60, 20);
 }
 
-//toggle button
-void mousePressed(){
-  if (mouseX > 480 && mouseX < 540 && mouseY > 80 && mouseY < 100) enabled =!enabled;
-}
-
-void enable(){
-  if (arduino.digitalRead(pin6.pinNumber) == arduino.HIGH){
-    if (arduino.digitalRead(pin5.pinNumber) == arduino.HIGH){
-      if (arduino.digitalRead(pin3.pinNumber) == arduino.HIGH && arduino.digitalRead(pin4.pinNumber) == arduino.HIGH){
-         arduino.digitalWrite(pin6.pinNumber, arduino.LOW);
-         enabled = true;
-      }
+void testPins(){
+  for (int i = 0; i < pinList.size(); i++){
+    Pin pin = pinList.get(i);
+    println("Begin testing: " + pin.name);
+    if (pin.type == "analog"){
+      pin.printPin();
+      println(pin.aRead());
+    }
+    else{
+      println("Testing HIGH");
+      pin.printPin();
+      pin.dWrite("HIGH");
+      pin.printPin();
+      println("Reading: " + pin.dRead());
+      println("Testing LOW");
+      pin.printPin();
+      pin.dWrite("LOW");
+      pin.printPin();
+      println("Reading: " + pin.dRead());
     }
   }
 }
 
+//toggle button
+void mousePressed(){
+  if (mouseX > 480 && mouseX < 540 && mouseY > 80 && mouseY < 100) {
+    if (enabled == false) enable();
+    else disable();
+  }
+}
+
+void enable(){
+  if (arduino.digitalRead(6) == arduino.HIGH){
+    if (arduino.digitalRead(pin5.pinNumber) == arduino.HIGH){
+      if (arduino.digitalRead(pin3.pinNumber) == arduino.HIGH && arduino.digitalRead(pin4.pinNumber) == arduino.HIGH){
+        arduino.digitalWrite(pin6.pinNumber, arduino.LOW);
+        enabled = true;
+      }
+      else println("Cannot Enable: VAUX1 or VAUX2 currently LOW");
+    }
+    else println("Cannot Enable: LOAD_READY_ISO currently LOW");
+  }
+  else println("Cannot Enable: OPTO_EN currently LOW at " + arduino.digitalRead(pin6.pinNumber));
+}
+
 void disable(){
-  arduino.digitalWrite(pin6.pinNumber, arduino.HIGH);
-  enabled = false;
+  if (pin6.state == "LOW") {
+    arduino.digitalWrite(pin6.pinNumber, arduino.HIGH);
+    enabled = false;
+  }
   //do stuff to disable
 }
 
 /* QUESTIONS
 when disabling what do we turn to low?
 is everything else default low?
+setter-- just a function where you input parameters and pop out a pin with those variables
+*/
+/*
+Looop Pins{
+ printPInt
+  dWrite pin High
+ printPin
+ print(dRead) 
+}
 */
