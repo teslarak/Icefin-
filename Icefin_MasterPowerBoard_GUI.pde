@@ -1,6 +1,8 @@
 /*
 Icefin Master Power Board GUI for Testing
 
+IMPORTANT: pin6 aka OPTO_EN must be HIGH before enabling
+
 What this does:
   1) Shows status of all signals
   2) Can enable and disable the Power Board
@@ -12,44 +14,52 @@ What this does:
   3) Logs Temperature in a separate file
   4) Plots temperature VS time
   
+How to use:
+  1) Ensure power board wires are snugly fit inside connectors and there are no shorts.
+  2) Connect Arduino to computer via USB and run the StandardFirmata example code in the 
+  Arduino application.
+  3) Run this program to use the GUI.
+  4) If it gives you a port not found error, check that the port is /dev/cu.usbmodem1441 
+  in Arduino > tools. If not, write the correct port into this line in the code below 
+  and use quotations: arduino = new Arduino(this, "/dev/cu.usbmodem1441", 57600);
+  5) Press the enable button to toggle enabled and disabled board state. 
+  Read the console below and the GUI to monitor status of board.
+  6) If you would like to create a new pin, click the Pins tab and scroll to the bottom.
+
 Example code from StandardFirmata Firmware which "Demonstrates the reading of 
 digital and analog pins of an Arduino board running the StandardFirmata firmware."
-  
-How to use:
-  1) Connect Arduino to computer via USB and run the StandardFirmata example code in the 
-  Arduino application.
-  2) Run this program to use interface.
-  3) If it doesn't work, check that the port is /dev/cu.usbmodem1441 in Arduino > tools.
-  If not, write the correct port into this line in the code below and use quotations: 
-  arduino = new Arduino(this, "/dev/cu.usbmodem1441", 57600);
 
 Lara Kassabian 2017
 */
 
+//Setting up
 import processing.serial.*;
-
+import controlP5.*;
 import cc.arduino.*;
-
 Arduino arduino;
-
+ControlP5 cp5;
 color off = color(4, 79, 111);
 color on = color(84, 145, 158);
 boolean enabled = false;
 ArrayList<Pin> pinList = new ArrayList<Pin>(8);
-Table table;
-int phase = 0;
-int count = 0;
+float newVal;
+color dialColor = on;
+Knob tempKnob;
 
+//Runs first and sets up program
 void setup() {
   size(940, 280);
 
   // Prints out the available serial ports.
+  println("List of available serial ports: ");
   println(Arduino.list());
-  arduino = new Arduino(this, "/dev/tty.usbmodem1431", 57600);
+  arduino = new Arduino(this, "/dev/tty.usbmodem1451", 57600);
   // Use the name of the serial port corresponding to your 
   // Arduino (in double-quotes), as in the following line.
   // arduino = new Arduino(this, "/dev/tty.usbmodem621", 57600);
-  pinList.add(pinA0);
+  
+  //adds pins to the pinList  
+  pinList.add(pinA0); 
   pinList.add(pinA1);
   pinList.add(pinA2);
   pinList.add(pin2);
@@ -57,23 +67,30 @@ void setup() {
   pinList.add(pin4);
   pinList.add(pin5);
   pinList.add(pin6);
-  //pin6.printPin();
-  //disable();
-  //for (int i = 0; i < 8 ; i++){
-  // pinList.get(i).begin();}
-  //pin6.setpinInOut("OUTPUT");
-  //pin6.dWrite("LOW"); 
-  //pin6.printPin();
-  //pin6.dWrite("HIGH");
-  //pin6.printPin();
-  ////IMPORTANT: pin6 aka OPTO_EN must be HIGH before enabling
-  testPins();
+  disable();
+  for (int i = 0; i < 8 ; i++){
+   pinList.get(i).begin();}
+  //testPins(); //uncomment this to run a test of all the pins using a multimeter and the display console below
+  
+  //Makes temperature knob
+  cp5 = new ControlP5(this);
+  tempKnob = cp5.addKnob("Temperature ˚C")
+                .setRange(0,100)
+                .setValue(0)
+                .setPosition(650, 100)
+                .setRadius(50)
+                .setViewStyle(Knob.ARC)
+                .setMoveable(false)
+                .setColorForeground(dialColor)
+                .setColorActive(dialColor)
+                .setUpdate(true);
 }
 
+//Runs 60 times per second and draws the GUI
 void draw() {
   background(off);
   stroke(on);
-  fill(on);
+  fill(255);
   textSize(24);
   text("Icefin Master Power Board Testing GUI", width/4, 30);
   textSize(12);
@@ -81,35 +98,38 @@ void draw() {
   text("Analog I/O", 290, 65);
   text("Press to Enable/Disable", 450, 65);
   text("Temperature versus Time", 650, 65);
+  float temp = temp(pinA2.aRead());
   textSize(9);
   
   //Draw a filled box for each digital pin that's HIGH (5 volts).
   for (int i = 0; i < 5; i++) {
     fill(on);
     text(pinList.get(i+3).name, 40, 90 + i * 40);
-    if (arduino.digitalRead(i+3) == Arduino.HIGH){
+    if (pinList.get(i+3).state == "HIGH"){
       fill(on);
       text("HIGH",158, 90 + i * 40);
-      pinList.get(i+3).state = "HIGH";
+    }
+    else if (pinList.get(i+3).state == "LOW"){
+      text("LOW",158, 90 + i * 40);
+      fill(off);
     }
     else {
-      text("LOW",158, 90 + i * 40);
-      pinList.get(i+3).state = "LOW";
-      fill(off);
+      text("null",158, 90 + i * 40);
+      fill(128,128,128);
     }
     rect(130, 75 + i * 40, 20, 20);
   } 
 
-  // Draw a circle whose size corresponds to the value of an analog input.
+  //Draw a circle whose size corresponds to the value of an analog input.
   for (int i = 0; i < 3; i++) {
     noFill();
     //ellipse(360, 90 + i * 40, 25, 25);
-    ellipse(360, 90 + i * 40, arduino.analogRead(i) / 16, arduino.analogRead(i) / 16);
+    ellipse(360, 90 + i * 40, pinList.get(i).aRead() / 16, pinList.get(i).aRead() / 16);
     fill(on);
     text(pinList.get(i).name, 260, 90 + i * 40);
-    text(arduino.analogRead(i), 380, 93 + i * 40);
+    text(pinList.get(i).aRead(), 380, 93 + i * 40);
   }
-  //Make button for enabling and disabling board
+  //Draw button for enabling and disabling board
   stroke(255);
   if (enabled == true) {
     text("Enabled", 480, 115);
@@ -117,14 +137,26 @@ void draw() {
   }
   else fill(off);
   rect(480, 80, 60, 20);
+  
+  //Draw the temperature dial
+  if (temp >= 90){
+    dialColor = color(204,0,0);
+  }
+  else dialColor = on;
+  tempKnob.setValue(temp);
+  tempKnob.setColorForeground(dialColor);
+  tempKnob.setColorActive(dialColor);
 }
 
+//Function to run a pin test. Uncomment the line testPins(); in the setup function 
+//to run a test.
 void testPins(){
   for (int i = 0; i < pinList.size(); i++){
     println("waiting...");
-    delay(15000);
+    delay(5000);
     Pin pin = pinList.get(i);
     println("Begin testing: " + pin.name);
+    delay(5000);
     if (pin.type == "analog"){
       pin.printPin();
       println(pin.aRead());
@@ -134,26 +166,22 @@ void testPins(){
       pin.printPin();
       pin.dWrite("HIGH");
       pin.printPin();
-      println("Reading: " + pin.dRead());
       println("waiting...");
-      delay(15000);
+      delay(5000);
+      println("Reading: " + pin.dRead());
       println("Testing LOW");
       pin.printPin();
       pin.dWrite("LOW");
       pin.printPin();
+      println("waiting...");
+      delay(5000);      
       println("Reading: " + pin.dRead());
       }
     }
+    println("Test Complete");
   }
 
-void keyPressed(){
-  if (keyPressed){
-    count += 1;
-    phase = count%2;
-  }
-}
-
-//toggle button
+//Toggles button
 void mousePressed(){
   if (mouseX > 480 && mouseX < 540 && mouseY > 80 && mouseY < 100) {
     if (enabled == false) enable();
@@ -161,38 +189,38 @@ void mousePressed(){
   }
 }
 
+//Enables board
 void enable(){
-  if (arduino.digitalRead(6) == arduino.HIGH){
-    if (arduino.digitalRead(pin5.pinNumber) == arduino.HIGH){
-      if (arduino.digitalRead(pin3.pinNumber) == arduino.HIGH && arduino.digitalRead(pin4.pinNumber) == arduino.HIGH){
-        arduino.digitalWrite(pin6.pinNumber, arduino.LOW);
-        enabled = true;
-      }
-      else println("Cannot Enable: VAUX1 or VAUX2 currently LOW");
-    }
-    else println("Cannot Enable: LOAD_READY_ISO currently LOW");
+  if (pin6.state == "HIGH"){
+    println(pin6.name + " is HIGH. Proceeding...");
+    pin5.setpinInOut("INPUT");
+    println("LOAD_READY_ISO ready");
+    pin3.setpinInOut("INPUT");
+    pin4.setpinInOut("INPUT");
+    println("VAUX1 and VAUX2 ready");
   }
-  else println("Cannot Enable: OPTO_EN currently LOW at " + arduino.digitalRead(pin6.pinNumber));
+  else println("Cannot Enable: OPTO_EN currently LOW");
+  enabled = true;
+  pin6.dWrite("LOW");
 }
 
+//Disables board
 void disable(){
-  if (pin6.state == "LOW") {
-    arduino.digitalWrite(pin6.pinNumber, arduino.HIGH);
-    enabled = false;
-  }
-  //do stuff to disable
+  pin6.dWrite("HIGH");
+  pin6.printPin();
+  enabled = false;
+  println("Disabled");
 }
 
-/* QUESTIONS
-when disabling what do we turn to low?
-is everything else default low?
-setter-- just a function where you input parameters and pop out a pin with those variables
-*/
-/*
-Looop Pins{
- printPInt
-  dWrite pin High
- printPin
- print(dRead) 
+//Maps from analog 0 to 1023 to volts to temperature ˚C
+float temp(float val){
+  float newVal = map(val, 0, 1023, 0, 5);
+  float temp = voltTempEq(newVal);
+  text(temp + " deg C", 650, 95);
+  return temp;
 }
-*/
+
+float voltTempEq(float volt){
+  float newTemp = (volt - 0.5)*100;
+  return newTemp;
+}
