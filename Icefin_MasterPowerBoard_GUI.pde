@@ -28,6 +28,7 @@ How to use:
  
 Example code from StandardFirmata Firmware which "Demonstrates the reading of 
 digital and analog pins of an Arduino board running the StandardFirmata firmware."
+Knob class from ControlP5 library.
  
 Lara Kassabian 2017
 */
@@ -145,7 +146,7 @@ void draw() {
   }
   //Draw button for enabling and disabling board
   stroke(255);
-  if (enabled == true) {
+  if (enabled) {
     text("Enabled", 488, 115);
     fill(on);
   } else {
