@@ -46,7 +46,6 @@ float newVal;
 color dialColor = on;
 Knob tempKnob;
 Table tempTable = new Table();
-PFont font;
 //Note: on non-mac computers you can change the semicolons separating the time to colons. 
 //On macs, colons display as slashes in the filename
 String timeStamp = month() + "-" + day()+ " " + hour() + ";" + minute() + ";" + second();
@@ -54,7 +53,6 @@ String timeStamp = month() + "-" + day()+ " " + hour() + ";" + minute() + ";" + 
 //Runs first and sets up program
 void setup() {
   size(800, 280);
-  font = loadFont("STHeitiSC-Light-48.vlw");
   
   // Prints out the available serial ports.
   println("List of available serial ports: ");
@@ -92,13 +90,10 @@ void setup() {
     .setColorActive(dialColor)
     .setUpdate(true);
   
-  //string csv_log_name = "T_log_" + (timestamp) + ".csv";
-  println(timeStamp);
   //Makes temperature log
   tempTable.addColumn("Timestamp");
   tempTable.addColumn("Temperature");
   tempTable.addColumn("ON/OFF");
-  //saveTable(tempTable, "Temperature Log.csv");
 }
 
 //Runs 60 times per second and draws the GUI
@@ -106,7 +101,6 @@ void draw() {
   background(off);
   stroke(255);
   fill(255);
-  //textFont(font);
   textSize(24);
   text("Icefin Master Power Board Testing GUI", width/4, 30);
   textSize(12);
@@ -143,7 +137,6 @@ void draw() {
   //Draw a circle whose size corresponds to the value of an analog input.
   for (int i = 0; i < 3; i++) {
     noFill();
-    //ellipse(360, 90 + i * 40, 25, 25);
     ellipse(340, 90 + i * 40, pinList.get(i).aRead() / 16, pinList.get(i).aRead() / 16);
     fill(on);
     text(pinList.get(i).name, 240, 90 + i * 40);
