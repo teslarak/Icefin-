@@ -1,4 +1,5 @@
-/*Pin class tab - for creating, editing, and using pin objects to represent pins on 
+/*
+Pin class tab - for creating, editing, and using pin objects to represent pins on 
 the shield.
 
 To create a pin, scroll to the bottom and write
@@ -17,7 +18,7 @@ List of functions in this tab (name:how to use)
   6) dWrite(String state):call pin#.dWrite("HIGH" or "LOW") to write a digital pin 
      to HIGH or LOW.
   7) dRead():call pin#.dRead() to read a digital pin. To print the reading uncomment
-     line 90 or write println(pin#.dRead());
+     line 99 or write println(pin#.dRead());
   8) aRead():call pin#.aRead() to read an analog pin. To print write 
      println(pin#.aRead());
   9) printPin():call pin#.printPin() to print the pin's information.
