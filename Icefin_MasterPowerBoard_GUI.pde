@@ -34,7 +34,7 @@ List of functions in this tab (name:how to use)
      them outside the setup function.
   2) draw():edit this to change positions and shapes on the display. See 
      processing.org/reference for more detail.
-  3) testPins():do not edit unless changing test procedure. Uncomment line 90 to run 
+  3) testPins():do not edit unless changing test procedure. Uncomment line 91 to run 
      a pin test using a multimeter and the display console below.
   4) mousePressed():is called everytime the mouse is pressed. Use to toggle things.
   5) enable():no need to call. Press button on display to toggle enable/disable. 
@@ -87,7 +87,8 @@ void setup() {
   for (int i = 0; i < 8; i++) {
     pinList.get(i).begin();
   }
-  //testPins(); //uncomment this to run a test of all the pins using a multimeter and the display console below
+  //uncomment this to run a test of all the pins using a multimeter and the display console below
+  //testPins();
 
   //Creates temperature dials
   createDial(); 

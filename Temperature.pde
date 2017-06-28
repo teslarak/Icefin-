@@ -100,9 +100,9 @@ void drawDial(){
   
   textSize(24);
   fill(255);
-  text(round(tempBoard) + " ˚C", 680, 105); //28
-  text(round(tempVicor1) + " ˚C", 860, 105); //20
-  text(round(tempVicor2) + " ˚C", 1040, 105); //20
+  text(round(tempBoard) + " ˚C", 680, 105);
+  text(round(tempVicor1) + " ˚C", 860, 105); 
+  text(round(tempVicor2) + " ˚C", 1040, 105); 
   
   if (millis()%2000 < 20) {
     updateTempLog(tempBoard, tempVicor1, tempVicor2);

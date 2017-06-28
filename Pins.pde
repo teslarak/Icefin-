@@ -3,7 +3,8 @@ Pin class tab - for creating, editing, and using pin objects to represent pins o
 the shield.
 
 To create a pin, scroll to the bottom and write
-Pin pinwhatyouwanttocallit = new Pin("name", pinNumber, "analog or digital", "in or out");
+Pin pinwhatyouwanttocallit = new Pin("name", pinNumber, "analog" or "digital", "in" 
+or "out");
 
 List of functions in this tab (name:how to use)
   1) setpinName(String name):call pin#.setpinName("name"); to set pin name
@@ -27,11 +28,11 @@ List of functions in this tab (name:how to use)
 
 */
 public class Pin {
-  String state;
   String name;
-  int pinNumber;
   String type;
   String inOut;
+  String state;
+  int pinNumber;
   
   Pin (String name, int pinNumber, String type, String inOut){
     this.name = name;
