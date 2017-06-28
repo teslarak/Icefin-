@@ -1,4 +1,30 @@
-//Pin class: for creating, editing, and using pin objects to represent pins on the shield
+/*Pin class tab - for creating, editing, and using pin objects to represent pins on 
+the shield.
+
+To create a pin, scroll to the bottom and write
+Pin pinwhatyouwanttocallit = new Pin("name", pinNumber, "analog or digital", "in or out");
+
+List of functions in this tab (name:how to use)
+  1) setpinName(String name):call pin#.setpinName("name"); to set pin name
+  2) setpinNumber(int number):call pin#.setpinNumber(number); to set a pin number 
+     corresponding to the arduino pin number.
+  3) setpinType(String type):call pin#.setpinType("analog" or "digital"); to set a pin
+     as analog or digital.
+  4) setpinInOut(String inout):call pin#.setpinInOut("in"/"IN"/"INPUT" or "out"); to 
+     set a pin as an input or output.
+  5) setpinState(String state):do not call this function to change to HIGH or LOW. 
+     Instead use dWrite.
+  6) dWrite(String state):call pin#.dWrite("HIGH" or "LOW") to write a digital pin 
+     to HIGH or LOW.
+  7) dRead():call pin#.dRead() to read a digital pin. To print the reading uncomment
+     line 90 or write println(pin#.dRead());
+  8) aRead():call pin#.aRead() to read an analog pin. To print write 
+     println(pin#.aRead());
+  9) printPin():call pin#.printPin() to print the pin's information.
+  10) begin():sets the digital pins as inputs or output except ones that need to be set
+      up differently. Is called in setup(). No need to call.
+
+*/
 public class Pin {
   String state;
   String name;
@@ -33,7 +59,7 @@ public class Pin {
 
 //Sets the pin as INPUT or OUTPUT  
   Pin setpinInOut(String inout){
-    if (inout == "INPUT" || inout == "IN") {
+    if (inout == "INPUT" || inout == "IN" || inout == "in") {
       arduino.pinMode(this.pinNumber, arduino.INPUT); 
       this.inOut = "in";
     }
@@ -64,7 +90,12 @@ public class Pin {
 //Sets a digital pin as an input and reads HIGH or LOW
   String dRead(){
     this.setpinInOut("INPUT");
-    arduino.digitalRead(this.pinNumber);
+    int out = arduino.digitalRead(this.pinNumber);
+    if (out == 1) {
+      this.setpinState("HIGH");
+    }
+    else this.setpinState("LOW");
+    //println(this.state);
     return this.state;
   }
   

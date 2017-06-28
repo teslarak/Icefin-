@@ -1,5 +1,6 @@
 /*
 Icefin Master Power Board GUI for Testing
+Main tab - structure for program
  
 IMPORTANT: pin6 aka OPTO_EN must be HIGH before enabling
  
@@ -24,28 +25,20 @@ How to use:
     and use quotations: arduino = new Arduino(this, "/dev/cu.usbmodem1441", 57600);
  5) Press the enable button to toggle enabled and disabled board state. 
     Read the console below and the GUI to monitor status of board.
- 6) If you would like to create a new pin, click the Pins tab and scroll to the bottom.
+ 6) If you would like to create a new pin or find pin names, click the Pins tab and 
+    scroll to the bottom.
  
-List of functions (name:how to use)
+List of functions in this tab (name:how to use)
   1) setup():only runs once at start so use to create new variables/objects or declare 
      them outside the setup function.
   2) draw():edit this to edit positions and shapes on the display see 
      processing.org/reference for more detail.
-  3) testPins():do not edit unless changing test procedure. Uncomment line 84 to run 
+  3) testPins():do not edit unless changing test procedure. Uncomment line 87 to run 
      a pin test using a multimeter and the display console below.
   4) mousePressed():is called everytime the mouse is pressed. Use to toggle things.
   5) enable():no need to call. Press button on display to toggle enable/disable. 
      only change if enable/disable procedure needs to be changed.
-  5) disable():same as enable
-  6) tempBoard(float val):call this function to convert an analog reading to a 
-     temperature of the board.
-  7) tempVicor(float val): call this function to convert an analog reading to a 
-     temperature of the Vicor chips.
-  8) voltTempEqBoard(float volt):this function is a helper function for 
-     tempBoard(float val). Call if you want a temperature from a voltage from the board.
-  9) voltTempEqVicor(float volt):this function is a helper function for 
-     tempVicor(float val). Call if you want a temperature from a voltage from the 
-     Vicor chips.
+  5) disable():same as enable. Is called in setup() to initially disable.
  
 Example code from StandardFirmata Firmware which "Demonstrates the reading of 
 digital and analog pins of an Arduino board running the StandardFirmata firmware."

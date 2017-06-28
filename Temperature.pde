@@ -1,3 +1,24 @@
+/*
+Temperature Tab - location of all temperature related functions and objects
+
+List of functions in this tab (name:how to use)
+  1) createDial():creates the three temperature gauges and is called in setup(). 
+     Add or edit dials here.
+  2) drawDial():draws the dials for each frame and is called in draw().
+  3) createTempLog():creates the temperature log. Add new columns here.
+  4) updateTempLog(float tempBoard, float tempVicor1, float tempVicor2):is called in 
+     drawDial(). Add row entries here.
+  5) tempBoard(float val):call this function to convert an analog reading to a 
+     temperature of the board.
+  6) tempVicor(float val): call this function to convert an analog reading to a 
+     temperature of the Vicor chips.
+  7) voltTempEqBoard(float volt):this function is a helper function for 
+     tempBoard(float val). Call if you want a temperature from a voltage from the board.
+  8) voltTempEqVicor(float volt):this function is a helper function for 
+     tempVicor(float val). Call if you want a temperature from a voltage from the 
+     Vicor chips.
+*/
+
 ControlP5 cp5;
 color dialColorBoard = on;
 color dialColorV1 = on;
@@ -8,12 +29,14 @@ Knob tempKnobVicor2;
 Table tempTable = new Table();
 float newVal;
 
+//Creates the dials
 void createDial(){
   cp5 = new ControlP5(this);
+  //Makes board temperature knob
   tempKnobBoard = cp5.addKnob("Board Temperature (C)")
     .setRange(0, 100)
     .setValue(0)
-    .setPosition(660, 100)
+    .setPosition(660, 110)
     .setRadius(50)
     .setViewStyle(Knob.ARC)
     .setMoveable(false)
@@ -25,7 +48,7 @@ void createDial(){
   tempKnobVicor1 = cp5.addKnob("Vicor1 Temperature (C)")
     .setRange(0, 100)
     .setValue(0)
-    .setPosition(840, 100)
+    .setPosition(840, 110)
     .setRadius(50)
     .setViewStyle(Knob.ARC)
     .setMoveable(false)
@@ -37,7 +60,7 @@ void createDial(){
   tempKnobVicor2 = cp5.addKnob("Vicor2 Temperature (C)")
     .setRange(0, 100)
     .setValue(0)
-    .setPosition(1020, 100)
+    .setPosition(1020, 110)
     .setRadius(50)
     .setViewStyle(Knob.ARC)
     .setMoveable(false)
@@ -46,6 +69,7 @@ void createDial(){
     .setUpdate(true);   
 }
 
+//Draws the dials
 void drawDial(){
   float tempBoard = tempBoard(pinA2.aRead());
   float tempVicor1 = tempVicor(pinA0.aRead());
@@ -72,33 +96,43 @@ void drawDial(){
   tempKnobVicor2.setColorForeground(dialColorV2);
   tempKnobVicor2.setColorActive(dialColorV2);
   
+  textSize(24);
+  fill(255);
+  text(round(tempBoard) + " ˚C", 680, 105); //28
+  text(round(tempVicor1) + " ˚C", 860, 105); //20
+  text(round(tempVicor2) + " ˚C", 1040, 105); //20
+  
   if (millis()%2000 < 20){
     updateTempLog(tempBoard, tempVicor1, tempVicor2);
   }
 }
 
-void updateTempLog(float tempBoard, float tempVicor1, float tempVicor2){
-  TableRow row = tempTable.addRow();
-  row.setString("Timestamp", month() + "/" + day()+ " " + hour() + ":" + minute() + ":" + second());
-  row.setFloat("Temperature", tempBoard);
-  if (enabled) row.setInt("ON/OFF", 1);
-  else row.setInt("ON/OFF", 0);
-  saveTable(tempTable, "Temperature Logs/TempLog " + timeStamp + ".csv");
-}
-
+//Creates the temperature log
 void createTempLog(){  
   //Makes temperature log
   tempTable.addColumn("Timestamp");
-  tempTable.addColumn("Temperature");
+  tempTable.addColumn("Board Temperature");
+  tempTable.addColumn("Vicor1 Temperature");
+  tempTable.addColumn("Vicor2 Temperature");
   tempTable.addColumn("ON/OFF");
-  
+}
+
+//Updates temperature log
+void updateTempLog(float tempBoard, float tempVicor1, float tempVicor2){
+  TableRow row = tempTable.addRow();
+  row.setString("Timestamp", month() + "/" + day()+ " " + hour() + ":" + minute() + ":" + second());
+  row.setFloat("Board Temperature", tempBoard);
+  row.setFloat("Vicor1 Temperature", tempVicor1);
+  row.setFloat("Vicor2 Temperature", tempVicor2);
+  if (enabled) row.setInt("ON/OFF", 1);
+  else row.setInt("ON/OFF", 0);
+  saveTable(tempTable, "Temperature Logs/TempLog " + timeStamp + ".csv");
 }
 
 //Maps from analog 0 to 1023 to volts to temperature ˚C for board temperature
 float tempBoard(float val) {
   float newVal = map(val, 0, 1023, 0, 5);
   float cel = voltTempEqBoard(newVal);
-  text(round(cel) + " ˚C", 685, 95);
   return cel;
 }
 
