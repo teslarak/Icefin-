@@ -11,25 +11,46 @@ What this does:
    b) Check if Load_Ready is high, if yes CONTINUE
    c) Check if VAUX1 and VAUX2 are high, if yes CONTINUE
    d) Set EN to low
- 3) Logs Temperature in a separate file
- 4) Plots temperature VS time
+ 3) Displays temperature gauges for BOARD_TMP_BUF, TM1_DC_BUF, and TM2_DC_BUF.
+ 4) Logs temperatures in a separate file
  
 How to use:
  1) Ensure power board wires are snugly fit inside connectors and there are no shorts.
  2) Connect Arduino to computer via USB and run the StandardFirmata example code in the 
- Arduino application.
+    Arduino application.
  3) Run this program to use the GUI.
  4) If it gives you a port not found error, check that the port is /dev/cu.usbmodem1441 
- in Arduino > tools. If not, write the correct port into this line in the code below 
- and use quotations: arduino = new Arduino(this, "/dev/cu.usbmodem1441", 57600);
+    in Arduino > tools. If not, write the correct port into this line in the code below 
+    and use quotations: arduino = new Arduino(this, "/dev/cu.usbmodem1441", 57600);
  5) Press the enable button to toggle enabled and disabled board state. 
- Read the console below and the GUI to monitor status of board.
+    Read the console below and the GUI to monitor status of board.
  6) If you would like to create a new pin, click the Pins tab and scroll to the bottom.
+ 
+List of functions (name:how to use)
+  1) setup():only runs once at start so use to create new variables/objects or declare 
+     them outside the setup function.
+  2) draw():edit this to edit positions and shapes on the display see 
+     processing.org/reference for more detail.
+  3) testPins():do not edit unless changing test procedure. Uncomment line 84 to run 
+     a pin test using a multimeter and the display console below.
+  4) mousePressed():is called everytime the mouse is pressed. Use to toggle things.
+  5) enable():no need to call. Press button on display to toggle enable/disable. 
+     only change if enable/disable procedure needs to be changed.
+  5) disable():same as enable
+  6) tempBoard(float val):call this function to convert an analog reading to a 
+     temperature of the board.
+  7) tempVicor(float val): call this function to convert an analog reading to a 
+     temperature of the Vicor chips.
+  8) voltTempEqBoard(float volt):this function is a helper function for 
+     tempBoard(float val). Call if you want a temperature from a voltage from the board.
+  9) voltTempEqVicor(float volt):this function is a helper function for 
+     tempVicor(float val). Call if you want a temperature from a voltage from the 
+     Vicor chips.
  
 Example code from StandardFirmata Firmware which "Demonstrates the reading of 
 digital and analog pins of an Arduino board running the StandardFirmata firmware."
 Knob class from ControlP5 library.
- 
+
 Lara Kassabian 2017
 */
 
@@ -38,30 +59,24 @@ import processing.serial.*;
 import controlP5.*;
 import cc.arduino.*;
 Arduino arduino;
-ControlP5 cp5;
 color off = color(4, 79, 111);
 color on = color(84, 145, 158);
 boolean enabled = false;
 ArrayList<Pin> pinList = new ArrayList<Pin>(8);
-float newVal;
-color dialColor = on;
-Knob tempKnob;
-Table tempTable = new Table();
 //Note: on non-mac computers you can change the semicolons separating the time to colons. 
 //On macs, colons display as slashes in the filename
-String timeStamp = month() + "-" + day()+ " " + hour() + ";" + minute() + ";" + second();
+String timeStamp = month() + "-" + day() + "-" + year() + " " + hour() + ";" + minute() + ";" + second();
 
 //Runs first and sets up program
 void setup() {
-  size(800, 280);
+  size(1160, 280);
   
   // Prints out the available serial ports.
   println("List of available serial ports: ");
   println(Arduino.list());
   arduino = new Arduino(this, "/dev/tty.usbmodem1431", 57600);
-  // Use the name of the serial port corresponding to your 
-  // Arduino (in double-quotes), as in the following line.
-  // arduino = new Arduino(this, "/dev/tty.usbmodem621", 57600);
+  // Use the name of the serial port corresponding to your Arduino (in double-quotes), 
+  //as in the following line. arduino = new Arduino(this, "/dev/tty.usbmodem621", 57600);
 
   //adds pins to the pinList  
   pinList.add(pinA0); 
@@ -78,23 +93,11 @@ void setup() {
   }
   //testPins(); //uncomment this to run a test of all the pins using a multimeter and the display console below
 
-  //Makes temperature knob
-  cp5 = new ControlP5(this);
-  tempKnob = cp5.addKnob("Temperature ˚C")
-    .setRange(0, 100)
-    .setValue(0)
-    .setPosition(660, 100)
-    .setRadius(50)
-    .setViewStyle(Knob.ARC)
-    .setMoveable(false)
-    .setColorForeground(dialColor)
-    .setColorActive(dialColor)
-    .setUpdate(true);
-  
-  //Makes temperature log
-  tempTable.addColumn("Timestamp");
-  tempTable.addColumn("Temperature");
-  tempTable.addColumn("ON/OFF");
+  //Creates temperature dials
+  createDial(); 
+   
+  //Creates temperature log 
+  createTempLog();
 }
 
 //Runs 60 times per second and draws the GUI
@@ -108,11 +111,10 @@ void draw() {
   text("Digital I/O", 70, 65);
   text("Analog I/O", 290, 65);
   text("Press to Enable/Disable", 450, 65);
-  text("Temperature Gauge", 650, 65);
+  text("Temperature Gauges", 830, 65);
   line(617, 65, 617, 250);
   line(420, 65, 420, 250);
   line(215, 65, 215, 250);
-  float temp = temp(pinA2.aRead());
   stroke(on);
   textSize(10);
   text("0", 660, 200);
@@ -154,24 +156,9 @@ void draw() {
     fill(off);
   }
   rect(488, 80, 60, 20);
-
-  //Draw the temperature dial
-  if (temp >= 90) {
-    dialColor = color(204, 0, 0);
-  } else dialColor = on;
-  tempKnob.setValue(temp);
-  tempKnob.setColorForeground(dialColor);
-  tempKnob.setColorActive(dialColor);
   
-  //Add to temperature log
-  if (millis()%2000 < 20){
-   TableRow row = tempTable.addRow();
-   row.setString("Timestamp", month() + "/" + day()+ " " + hour() + ":" + minute() + ":" + second());
-   row.setFloat("Temperature", temp);
-   if (enabled) row.setInt("ON/OFF", 1);
-   else row.setInt("ON/OFF", 0);
-   saveTable(tempTable, "Temperature log " + timeStamp + ".csv");
-  }
+  //Draws temperature gauges and calls updateTempLog
+  drawDial();
 }
 
 //Function to run a pin test. Uncomment the line testPins(); in the setup function 
@@ -206,6 +193,8 @@ void testPins() {
   println("Test Complete");
 }
 
+//ENABLE/DISABLE FUNCTIONS
+
 //Toggles button
 void mousePressed() {
   if (mouseX > 480 && mouseX < 540 && mouseY > 80 && mouseY < 100) {
@@ -234,18 +223,4 @@ void disable() {
   pin6.dWrite("HIGH");
   enabled = false;
   println("Disabled");
-}
-
-//Maps from analog 0 to 1023 to volts to temperature ˚C
-float temp(float val) {
-  float newVal = map(val, 0, 1023, 0, 5);
-  float temp = voltTempEq(newVal);
-  text(round(temp) + " ˚C", 685, 95);
-  return temp;
-}
-
-//Equation that turns voltage reading to temperature
-float voltTempEq(float volt) {
-  float newTemp = (volt - 0.5)*100;
-  return newTemp;
 }

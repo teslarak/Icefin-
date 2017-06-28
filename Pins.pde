@@ -80,7 +80,12 @@ public class Pin {
  
 //Sets the digital pins as inputs or outputs depending on their inOut variable
   void begin(){
-    if (this.type == "digital" && this.pinNumber != 5 && this.pinNumber != 6 && this.pinNumber != 3 && this.pinNumber != 4){
+    if (this.type == "digital" && 
+        this.pinNumber != 5 && 
+        this.pinNumber != 6 && 
+        this.pinNumber != 3 && 
+        this.pinNumber != 4)
+      {
       this.setpinInOut(this.inOut);
       }
     }
