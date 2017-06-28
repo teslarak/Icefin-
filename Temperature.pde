@@ -29,7 +29,9 @@ Knob tempKnobVicor2;
 Table tempTable = new Table();
 float newVal;
 
-//Creates the dials
+//Creates the dials (also called knobs or gauges).
+//see Processing/File/Examples/Contributed Libraries/ControlP5/Controllers/Knob 
+//for all functions in the knob class. 
 void createDial(){
   cp5 = new ControlP5(this);
   //Makes board temperature knob
@@ -102,7 +104,7 @@ void drawDial(){
   text(round(tempVicor1) + " ˚C", 860, 105); //20
   text(round(tempVicor2) + " ˚C", 1040, 105); //20
   
-  if (millis()%2000 < 20){
+  if (millis()%2000 < 20) {
     updateTempLog(tempBoard, tempVicor1, tempVicor2);
   }
 }

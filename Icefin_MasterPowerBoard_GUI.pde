@@ -1,5 +1,5 @@
 /*
-Icefin Master Power Board GUI for Testing
+>>>>>>>>>>>>>>>>>>>>>>>>Icefin Master Power Board GUI for Testing<<<<<<<<<<<<<<<<<<<<<<<
 Main tab - structure for program
  
 IMPORTANT: pin6 aka OPTO_EN must be HIGH before enabling
@@ -27,13 +27,14 @@ How to use:
     Read the console below and the GUI to monitor status of board.
  6) If you would like to create a new pin or find pin names, click the Pins tab and 
     scroll to the bottom.
+ 7) See List of functions below and on each tab if you would like to call a function.
  
 List of functions in this tab (name:how to use)
   1) setup():only runs once at start so use to create new variables/objects or declare 
      them outside the setup function.
-  2) draw():edit this to edit positions and shapes on the display see 
+  2) draw():edit this to change positions and shapes on the display. See 
      processing.org/reference for more detail.
-  3) testPins():do not edit unless changing test procedure. Uncomment line 87 to run 
+  3) testPins():do not edit unless changing test procedure. Uncomment line 90 to run 
      a pin test using a multimeter and the display console below.
   4) mousePressed():is called everytime the mouse is pressed. Use to toggle things.
   5) enable():no need to call. Press button on display to toggle enable/disable. 
@@ -43,6 +44,7 @@ List of functions in this tab (name:how to use)
 Example code from StandardFirmata Firmware which "Demonstrates the reading of 
 digital and analog pins of an Arduino board running the StandardFirmata firmware."
 Knob class from ControlP5 library.
+Arduino library also required. 
 
 Lara Kassabian 2017
 */
@@ -80,6 +82,7 @@ void setup() {
   pinList.add(pin4);
   pinList.add(pin5);
   pinList.add(pin6);
+  
   disable();
   for (int i = 0; i < 8; i++) {
     pinList.get(i).begin();
@@ -120,10 +123,12 @@ void draw() {
     if (pinList.get(i+3).state == "HIGH") {
       fill(on);
       text("HIGH", 158, 90 + i * 40);
-    } else if (pinList.get(i+3).state == "LOW") {
+    } 
+    else if (pinList.get(i+3).state == "LOW") {
       text("LOW", 158, 90 + i * 40);
       fill(off);
-    } else {
+    } 
+    else {
       text("null", 158, 90 + i * 40);
       fill(128, 128, 128);
     }
@@ -144,7 +149,8 @@ void draw() {
   if (enabled) {
     text("Enabled", 488, 115);
     fill(on);
-  } else {
+  } 
+  else {
     text("Disabled", 488, 115);
     fill(off);
   }
@@ -166,7 +172,8 @@ void testPins() {
     if (pin.type == "analog") {
       pin.printPin();
       println(pin.aRead());
-    } else {
+    } 
+    else {
       println("Testing HIGH");
       pin.printPin();
       pin.dWrite("HIGH");
@@ -205,7 +212,8 @@ void enable() {
     pin3.setpinInOut("INPUT");
     pin4.setpinInOut("INPUT");
     println("VAUX1 and VAUX2 ready");
-  } else println("Cannot Enable: OPTO_EN currently LOW");
+  } 
+  else println("Cannot Enable: OPTO_EN currently LOW");
   enabled = true;
   pin6.dWrite("LOW");
   println("Enabled");

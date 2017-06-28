@@ -18,7 +18,7 @@ List of functions in this tab (name:how to use)
   6) dWrite(String state):call pin#.dWrite("HIGH" or "LOW") to write a digital pin 
      to HIGH or LOW.
   7) dRead():call pin#.dRead() to read a digital pin. To print the reading uncomment
-     line 99 or write println(pin#.dRead());
+     line 101 or write println(pin#.dRead());
   8) aRead():call pin#.aRead() to read an analog pin. To print write 
      println(pin#.aRead());
   9) printPin():call pin#.printPin() to print the pin's information.
@@ -59,12 +59,14 @@ public class Pin {
   }
 
 //Sets the pin as INPUT or OUTPUT  
-  Pin setpinInOut(String inout){
+  Pin setpinInOut(String inout) {
     if (inout == "INPUT" || inout == "IN" || inout == "in") {
       arduino.pinMode(this.pinNumber, arduino.INPUT); 
       this.inOut = "in";
     }
-    else {arduino.pinMode(this.pinNumber, arduino.OUTPUT); this.inOut = "out";}
+    else {
+      arduino.pinMode(this.pinNumber, arduino.OUTPUT); this.inOut = "out";
+    }
     return this;
   }
 
@@ -77,7 +79,7 @@ public class Pin {
 //Sets a digital pin as an output and writes HIGH or LOW to it
   Pin dWrite(String state){
     this.setpinInOut("OUTPUT");
-    if (state == "HIGH"){ 
+    if (state == "HIGH") { 
       arduino.digitalWrite(this.pinNumber, arduino.HIGH); 
       this.setpinState("HIGH");
     }
@@ -106,7 +108,7 @@ public class Pin {
   }
 
 //Prints the pin with all its instance variables: name, pinNumber, type, inOut, and state  
-  void printPin() {
+  void printPin(){
     println(this.name, this.pinNumber, this.type, this.inOut, this.state);
   }
  
