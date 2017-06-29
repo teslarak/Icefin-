@@ -13,7 +13,7 @@ What this does:
    c) Check if VAUX1 and VAUX2 are low, if yes CONTINUE
    d) Set EN to low
  3) Displays temperature gauges for BOARD_TMP_BUF, TM1_DC_BUF, and TM2_DC_BUF.
- 4) Logs temperatures in a separate file
+ 4) Logs temperatures in a separate file, called "Temperature Logs"
  
 How to use:
  1) Ensure power board wires are snugly fit inside connectors and there are no shorts.
@@ -87,6 +87,7 @@ void setup() {
   for (int i = 0; i < 8; i++) {
     pinList.get(i).begin();
   }
+  pin2.dWrite("LOW");
   //uncomment this to run a test of all the pins using a multimeter and the display console below
   //testPins();
 
@@ -95,6 +96,8 @@ void setup() {
    
   //Creates temperature log 
   createTempLog();
+  
+  pin6.printPin();
 }
 
 //Runs 60 times per second and draws the GUI
@@ -117,23 +120,36 @@ void draw() {
 
   //Draw a filled box for each digital pin that's HIGH (5 volts).
   for (int i = 0; i < 5; i++) {
-    fill(on);
-    Pin pin = pinList.get(i+3);
-    text(pin.name, 40, 90 + i * 40);
-    if (pin.state == "HIGH") {
-      fill(on);
-      text("HIGH", 158, 90 + i * 40);
-    } 
-    else if (pin.state == "LOW") {
-      text("LOW", 158, 90 + i * 40);
-      fill(off);
-    } 
-    else {
-      text("null", 158, 90 + i * 40);
-      fill(128, 128, 128);
-    }
-    rect(130, 75 + i * 40, 20, 20);
+   fill(on);
+   Pin pin = pinList.get(i+3);
+   text(pin.name, 40, 90 + i * 40);
+   if (pin.inOut == "out"){
+     if (pin.state == "HIGH") {
+       fill(on);
+       text("HIGH", 158, 90 + i * 40);
+     }
+     else {
+       text("LOW", 158, 90 + i * 40);
+       fill(off);
+     }
+   }
+   else if (pin.inOut == "in") {
+     if (pin.dRead() == "HIGH") {
+       fill(on);
+       text("HIGH", 158, 90 + i * 40);
+     } 
+     else if (pin.dRead() == "LOW") {
+       text("LOW", 158, 90 + i * 40);
+       fill(off);
+     } 
+   }
+   else {
+     text("null", 158, 90 + i * 40);
+     fill(128, 128, 128);
+     }
+   rect(130, 75 + i * 40, 20, 20);
   } 
+
   
   //Draw a circle whose size corresponds to the value of an analog input.
   for (int i = 0; i < 3; i++) {
@@ -224,36 +240,3 @@ void disable() {
   enabled = false;
   println("Disabled");
 }
-
-  //for (int i = 0; i < 5; i++) {
-  //  fill(on);
-  //  Pin pin = pinList.get(i+3);
-  //  text(pin.name, 40, 90 + i * 40);
-  //  if (pin.inOut == "out"){
-  //    //pin.printPin();
-  //    if (pin.state == "HIGH") {
-  //      fill(on);
-  //      text("HIGH", 158, 90 + i * 40);
-  //    }
-  //    else {
-  //      fill(off);
-  //      text("LOW", 158, 90 + i * 40);
-  //    }
-  //  }
-  //  else if (pin.inOut == "in") {
-  //    println("input");
-  //    if (pin.dRead() == "HIGH") {
-  //      fill(on);
-  //      text("HIGH", 158, 90 + i * 40);
-  //    } 
-  //    else if (pin.dRead() == "LOW") {
-  //      text("LOW", 158, 90 + i * 40);
-  //      fill(off);
-  //    } 
-  //  }
-  //  else {
-  //    text("null", 158, 90 + i * 40);
-  //    fill(128, 128, 128);
-  //    }
-  //  rect(130, 75 + i * 40, 20, 20);
-  //} 
