@@ -28,6 +28,7 @@ Knob tempKnobVicor1;
 Knob tempKnobVicor2;
 Table tempTable = new Table();
 float newVal;
+int tUnavailable = -130;
 
 //Creates the dials (also called knobs or gauges).
 //see Processing/File/Examples/Contributed Libraries/ControlP5/Controllers/Knob 
@@ -73,19 +74,28 @@ void createDial(){
 
 //Draws the dials
 void drawDial(){
-  float tempBoard = tempBoard(pinA2.aRead());
-  float tempVicor1 = tempVicor(pinA0.aRead());
-  float tempVicor2 = tempVicor(pinA1.aRead());
+  float tempBoard;
+  float tempVicor1;
+  float tempVicor2;
+  tempBoard = tempBoard(pinA2.aRead());
+  if (checkVaux()){
+    tempVicor1 = tempVicor(pinA0.aRead());
+    tempVicor2 = tempVicor(pinA1.aRead());
+  }
+  else {
+    tempVicor1 = tUnavailable;
+    tempVicor2 = tUnavailable;
+  }
   if (tempBoard >= 90) {
-    dialColorBoard = color(204, 0, 0);
+    dialColorBoard = color(204, 0, 0); //red
   } 
   else dialColorBoard = on;
   if (tempVicor1 >= 90) {
-    dialColorV1 = color(204, 0, 0);
+    dialColorV1 = color(204, 0, 0); //red
   }
   else dialColorV1 = on;
   if (tempVicor2 >= 90) {
-    dialColorV2 = color(204, 0, 0);
+    dialColorV2 = color(204, 0, 0); //red
   }
   else dialColorV2 = on;  
   tempKnobBoard.setValue(tempBoard);
@@ -141,12 +151,12 @@ void updateTempLog(float tempBoard, float tempVicor1, float tempVicor2){
   if (pin3.dRead() == "LOW") row.setInt("VAUX1 state", 1);
   else {
     row.setInt("VAUX1 state", 0);
-    row.setInt("Vicor1 Temperature", -81);
+    row.setFloat("Vicor1 Temperature", tempVicor1);
   }
   if (pin4.dRead() == "LOW") row.setInt("VAUX2 state", 1);
   else {
     row.setInt("VAUX2 state", 0);
-    row.setInt("Vicor2 Temperature", -81);
+    row.setFloat("Vicor2 Temperature", tempVicor2);
   }
   saveTable(tempTable, "Temperature Logs/TempLog " + timeStamp + ".csv");
 }
@@ -175,4 +185,11 @@ float voltTempEqBoard(float volt) {
 float voltTempEqVicor(float volt){
   float newTemp = (volt - 1.02)*100;
   return newTemp;
+}
+
+boolean checkVaux(){
+  if (pin3.dRead() == "LOW" && pin4.dRead() == "LOW"){
+    return true;
+  }
+  else return false;
 }

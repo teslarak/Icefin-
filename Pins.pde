@@ -104,7 +104,6 @@ public class Pin {
       this.setpinState("HIGH");
     }
     else this.setpinState("LOW");
-    //println(this.state);
     return this.state;
   }
   

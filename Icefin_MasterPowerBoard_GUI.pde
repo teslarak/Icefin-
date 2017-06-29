@@ -54,8 +54,8 @@ import processing.serial.*;
 import controlP5.*;
 import cc.arduino.*;
 Arduino arduino;
-color off = color(4, 79, 111);
-color on = color(84, 145, 158);
+color off = color(4, 79, 111); //darker blue
+color on = color(84, 145, 158); //lighter blue
 boolean enabled = false;
 ArrayList<Pin> pinList = new ArrayList<Pin>(8);
 //Note: on non-mac computers you can change the semicolons separating the time to colons. 
@@ -96,8 +96,6 @@ void setup() {
    
   //Creates temperature log 
   createTempLog();
-  
-  pin6.printPin();
 }
 
 //Runs 60 times per second and draws the GUI
