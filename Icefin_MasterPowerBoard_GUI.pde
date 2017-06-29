@@ -10,7 +10,7 @@ What this does:
  to ENABLE:
    a) Check if EN is high to begin, if yes CONTINUE
    b) Check if Load_Ready is high, if yes CONTINUE
-   c) Check if VAUX1 and VAUX2 are high, if yes CONTINUE
+   c) Check if VAUX1 and VAUX2 are low, if yes CONTINUE
    d) Set EN to low
  3) Displays temperature gauges for BOARD_TMP_BUF, TM1_DC_BUF, and TM2_DC_BUF.
  4) Logs temperatures in a separate file
@@ -118,12 +118,13 @@ void draw() {
   //Draw a filled box for each digital pin that's HIGH (5 volts).
   for (int i = 0; i < 5; i++) {
     fill(on);
-    text(pinList.get(i+3).name, 40, 90 + i * 40);
-    if (pinList.get(i+3).state == "HIGH") {
+    Pin pin = pinList.get(i+3);
+    text(pin.name, 40, 90 + i * 40);
+    if (pin.state == "HIGH") {
       fill(on);
       text("HIGH", 158, 90 + i * 40);
     } 
-    else if (pinList.get(i+3).state == "LOW") {
+    else if (pin.state == "LOW") {
       text("LOW", 158, 90 + i * 40);
       fill(off);
     } 
@@ -133,7 +134,7 @@ void draw() {
     }
     rect(130, 75 + i * 40, 20, 20);
   } 
-
+  
   //Draw a circle whose size corresponds to the value of an analog input.
   for (int i = 0; i < 3; i++) {
     noFill();
@@ -208,8 +209,7 @@ void enable() {
     println(pin6.name + " is HIGH. Proceeding...");
     pin5.setpinInOut("INPUT");
     println("LOAD_READY_ISO ready");
-    pin3.setpinInOut("INPUT");
-    pin4.setpinInOut("INPUT");
+  if (pin3.state == "LOW" && pin4.state == "LOW");
     println("VAUX1 and VAUX2 ready");
   } 
   else println("Cannot Enable: OPTO_EN currently LOW");
@@ -224,3 +224,36 @@ void disable() {
   enabled = false;
   println("Disabled");
 }
+
+  //for (int i = 0; i < 5; i++) {
+  //  fill(on);
+  //  Pin pin = pinList.get(i+3);
+  //  text(pin.name, 40, 90 + i * 40);
+  //  if (pin.inOut == "out"){
+  //    //pin.printPin();
+  //    if (pin.state == "HIGH") {
+  //      fill(on);
+  //      text("HIGH", 158, 90 + i * 40);
+  //    }
+  //    else {
+  //      fill(off);
+  //      text("LOW", 158, 90 + i * 40);
+  //    }
+  //  }
+  //  else if (pin.inOut == "in") {
+  //    println("input");
+  //    if (pin.dRead() == "HIGH") {
+  //      fill(on);
+  //      text("HIGH", 158, 90 + i * 40);
+  //    } 
+  //    else if (pin.dRead() == "LOW") {
+  //      text("LOW", 158, 90 + i * 40);
+  //      fill(off);
+  //    } 
+  //  }
+  //  else {
+  //    text("null", 158, 90 + i * 40);
+  //    fill(128, 128, 128);
+  //    }
+  //  rect(130, 75 + i * 40, 20, 20);
+  //} 

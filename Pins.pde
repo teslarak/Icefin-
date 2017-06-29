@@ -65,8 +65,13 @@ public class Pin {
       arduino.pinMode(this.pinNumber, Arduino.INPUT); 
       this.inOut = "in";
     }
+    else if (inout == "INPUT_PULLUP"){
+      arduino.pinMode(this.pinNumber, Arduino.INPUT_PULLUP); 
+      this.inOut = "in";
+    }
     else {
-      arduino.pinMode(this.pinNumber, Arduino.OUTPUT); this.inOut = "out";
+      arduino.pinMode(this.pinNumber, Arduino.OUTPUT); 
+      this.inOut = "out";
     }
     return this;
   }
@@ -95,7 +100,7 @@ public class Pin {
   String dRead(){
     this.setpinInOut("INPUT_PULLUP");
     int out = arduino.digitalRead(this.pinNumber);
-    if (out == 1) {
+    if (out == 0) {
       this.setpinState("HIGH");
     }
     else this.setpinState("LOW");
@@ -117,9 +122,7 @@ public class Pin {
   void begin(){
     if (this.type == "digital" && 
         this.pinNumber != 5 && 
-        this.pinNumber != 6 && 
-        this.pinNumber != 3 && 
-        this.pinNumber != 4)
+        this.pinNumber != 6)
       {
       this.setpinInOut(this.inOut);
       }
