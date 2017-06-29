@@ -125,6 +125,8 @@ void createTempLog(){
   tempTable.addColumn("Vicor1 Temperature");
   tempTable.addColumn("Vicor2 Temperature");
   tempTable.addColumn("ON/OFF");
+  tempTable.addColumn("VAUX1 state");
+  tempTable.addColumn("VAUX2 state");
 }
 
 //Updates temperature log
@@ -136,6 +138,16 @@ void updateTempLog(float tempBoard, float tempVicor1, float tempVicor2){
   row.setFloat("Vicor2 Temperature", tempVicor2);
   if (enabled) row.setInt("ON/OFF", 1);
   else row.setInt("ON/OFF", 0);
+  if (pin3.dRead() == "LOW") row.setInt("VAUX1 state", 1);
+  else {
+    row.setInt("VAUX1 state", 0);
+    row.setInt("Vicor1 Temperature", -81);
+  }
+  if (pin4.dRead() == "LOW") row.setInt("VAUX2 state", 1);
+  else {
+    row.setInt("VAUX2 state", 0);
+    row.setInt("Vicor2 Temperature", -81);
+  }
   saveTable(tempTable, "Temperature Logs/TempLog " + timeStamp + ".csv");
 }
 

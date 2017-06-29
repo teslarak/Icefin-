@@ -93,7 +93,7 @@ public class Pin {
 
 //Sets a digital pin as an input and reads HIGH or LOW
   String dRead(){
-    this.setpinInOut("INPUT");
+    this.setpinInOut("INPUT_PULLUP");
     int out = arduino.digitalRead(this.pinNumber);
     if (out == 1) {
       this.setpinState("HIGH");
