@@ -18,7 +18,7 @@ What this does:
 How to use:
  1) Ensure power board wires are snugly fit inside connectors and there are no shorts.
  2) Connect Arduino to computer via USB and run the StandardFirmata example code in the 
-    Arduino application.
+    Arduino IDE application. (Arduino>Examples>Firmata>Standard Firmata)
  3) Run this program to use the GUI.
  4) If it gives you a port not found error, check that the port is /dev/cu.usbmodem1441 
     in Arduino > tools. If not, write the correct port into this line in the code below 

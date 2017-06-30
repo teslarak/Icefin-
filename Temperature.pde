@@ -10,13 +10,15 @@ List of functions in this tab (name:how to use)
      drawDial(). Add row entries here.
   5) tempBoard(float val):call this function to convert an analog reading to a 
      temperature of the board.
-  6) tempVicor(float val): call this function to convert an analog reading to a 
+  6) tempVicor(float val):call this function to convert an analog reading to a 
      temperature of the Vicor chips.
   7) voltTempEqBoard(float volt):this function is a helper function for 
      tempBoard(float val). Call if you want a temperature from a voltage from the board.
   8) voltTempEqVicor(float volt):this function is a helper function for 
      tempVicor(float val). Call if you want a temperature from a voltage from the 
      Vicor chips.
+  9) checkVaux():call if you want to check if VAUX1 and VAUX2 are ready to power on/
+     run temperature tests.
 */
 
 ControlP5 cp5;
@@ -148,12 +150,12 @@ void updateTempLog(float tempBoard, float tempVicor1, float tempVicor2){
   row.setFloat("Vicor2 Temperature", tempVicor2);
   if (enabled) row.setInt("ON/OFF", 1);
   else row.setInt("ON/OFF", 0);
-  if (pin3.dRead() == "LOW") row.setInt("VAUX1 state", 1);
+  if (pin3.dRead() == "HIGH") row.setInt("VAUX1 state", 1);
   else {
     row.setInt("VAUX1 state", 0);
     row.setFloat("Vicor1 Temperature", tempVicor1);
   }
-  if (pin4.dRead() == "LOW") row.setInt("VAUX2 state", 1);
+  if (pin4.dRead() == "HIGH") row.setInt("VAUX2 state", 1);
   else {
     row.setInt("VAUX2 state", 0);
     row.setFloat("Vicor2 Temperature", tempVicor2);
@@ -187,8 +189,9 @@ float voltTempEqVicor(float volt){
   return newTemp;
 }
 
+//Checks if VAUX1 and VAUX2 are HIGH to log temperature
 boolean checkVaux(){
-  if (pin3.dRead() == "LOW" && pin4.dRead() == "LOW"){
+  if (pin3.dRead() == "HIGH" && pin4.dRead() == "HIGH"){
     return true;
   }
   else return false;
