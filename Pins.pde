@@ -19,7 +19,7 @@ List of functions in this tab (name:how to use)
   6) dWrite(String state):call pin#.dWrite("HIGH" or "LOW") to write a digital pin 
      to HIGH or LOW.
   7) dRead():call pin#.dRead() to read a digital pin. To print the reading uncomment
-     line 101 or write println(pin#.dRead());
+     line 102 or write println(pin#.dRead());
   8) aRead():call pin#.aRead() to read an analog pin. To print write 
      println(pin#.aRead());
   9) printPin():call pin#.printPin() to print the pin's information.
@@ -62,11 +62,16 @@ public class Pin {
 //Sets the pin as INPUT or OUTPUT  
   Pin setpinInOut(String inout) {
     if (inout == "INPUT" || inout == "IN" || inout == "in") {
-      arduino.pinMode(this.pinNumber, arduino.INPUT); 
+      arduino.pinMode(this.pinNumber, Arduino.INPUT); 
+      this.inOut = "in";
+    }
+    else if (inout == "INPUT_PULLUP"){
+      arduino.pinMode(this.pinNumber, Arduino.INPUT_PULLUP); 
       this.inOut = "in";
     }
     else {
-      arduino.pinMode(this.pinNumber, arduino.OUTPUT); this.inOut = "out";
+      arduino.pinMode(this.pinNumber, Arduino.OUTPUT); 
+      this.inOut = "out";
     }
     return this;
   }
@@ -81,11 +86,11 @@ public class Pin {
   Pin dWrite(String state){
     this.setpinInOut("OUTPUT");
     if (state == "HIGH") { 
-      arduino.digitalWrite(this.pinNumber, arduino.HIGH); 
+      arduino.digitalWrite(this.pinNumber, Arduino.HIGH); 
       this.setpinState("HIGH");
     }
     else if (state == "LOW") {
-      arduino.digitalWrite(this.pinNumber, arduino.LOW); 
+      arduino.digitalWrite(this.pinNumber, Arduino.LOW); 
       this.setpinState("LOW");
     }
     return this;
@@ -93,13 +98,12 @@ public class Pin {
 
 //Sets a digital pin as an input and reads HIGH or LOW
   String dRead(){
-    this.setpinInOut("INPUT");
+    this.setpinInOut("INPUT_PULLUP");
     int out = arduino.digitalRead(this.pinNumber);
-    if (out == 1) {
+    if (out == 0) {
       this.setpinState("HIGH");
     }
     else this.setpinState("LOW");
-    //println(this.state);
     return this.state;
   }
   
@@ -117,9 +121,7 @@ public class Pin {
   void begin(){
     if (this.type == "digital" && 
         this.pinNumber != 5 && 
-        this.pinNumber != 6 && 
-        this.pinNumber != 3 && 
-        this.pinNumber != 4)
+        this.pinNumber != 6)
       {
       this.setpinInOut(this.inOut);
       }
@@ -137,3 +139,9 @@ Pin pin4 = new Pin("VAUX2_OC", 4, "digital", "in");
 Pin pin5 = new Pin("LOAD_READY_ISO", 5, "digital", "in");
 Pin pin6 = new Pin("OPTO_EN", 6, "digital", "out");
 Pin test = new Pin("test", 13, "digital", "out");
+
+//Vicor signal control breakouts
+Pin pin9 = new Pin("IN2", 9, "digital", "out");
+Pin pin10 = new Pin("IN3", 10, "digital", "out");
+Pin pin11 = new Pin("IN4", 11, "digital", "out");
+Pin pin12 = new Pin("IN5", 12, "digital", "out");

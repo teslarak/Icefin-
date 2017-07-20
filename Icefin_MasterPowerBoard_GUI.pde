@@ -10,15 +10,15 @@ What this does:
  to ENABLE:
    a) Check if EN is high to begin, if yes CONTINUE
    b) Check if Load_Ready is high, if yes CONTINUE
-   c) Check if VAUX1 and VAUX2 are high, if yes CONTINUE
+   c) Check if VAUX1 and VAUX2 are low, if yes CONTINUE
    d) Set EN to low
  3) Displays temperature gauges for BOARD_TMP_BUF, TM1_DC_BUF, and TM2_DC_BUF.
- 4) Logs temperatures in a separate file
+ 4) Logs temperatures in a separate file, called "Temperature Logs"
  
 How to use:
  1) Ensure power board wires are snugly fit inside connectors and there are no shorts.
  2) Connect Arduino to computer via USB and run the StandardFirmata example code in the 
-    Arduino application.
+    Arduino IDE application. (Arduino>Examples>Firmata>Standard Firmata)
  3) Run this program to use the GUI.
  4) If it gives you a port not found error, check that the port is /dev/cu.usbmodem1441 
     in Arduino > tools. If not, write the correct port into this line in the code below 
@@ -54,9 +54,13 @@ import processing.serial.*;
 import controlP5.*;
 import cc.arduino.*;
 Arduino arduino;
-color off = color(4, 79, 111);
-color on = color(84, 145, 158);
+color off = color(4, 79, 111); //darker blue
+color on = color(84, 145, 158); //lighter blue
 boolean enabled = false;
+boolean R2state = false;
+boolean R3state = false;
+boolean R4state = false;
+boolean R5state= false;
 ArrayList<Pin> pinList = new ArrayList<Pin>(8);
 //Note: on non-mac computers you can change the semicolons separating the time to colons. 
 //On macs, colons display as slashes in the filename
@@ -69,7 +73,7 @@ void setup() {
   // Prints out the available serial ports.
   println("List of available serial ports: ");
   println(Arduino.list());
-  arduino = new Arduino(this, "/dev/tty.usbmodem1431", 57600);
+  arduino = new Arduino(this, "/dev/tty.usbmodem1451", 57600);
   // Use the name of the serial port corresponding to your Arduino (in double-quotes), 
   //as in the following line. arduino = new Arduino(this, "/dev/tty.usbmodem621", 57600);
 
@@ -82,11 +86,20 @@ void setup() {
   pinList.add(pin4);
   pinList.add(pin5);
   pinList.add(pin6);
+  pinList.add(pin9);
+  pinList.add(pin10);
+  pinList.add(pin11);
+  pinList.add(pin12);
   
   disable();
+  relayOff(pin9);
+  relayOff(pin10);
+  relayOff(pin11);
+  relayOff(pin12);
   for (int i = 0; i < 8; i++) {
     pinList.get(i).begin();
   }
+  pin2.dWrite("LOW");
   //uncomment this to run a test of all the pins using a multimeter and the display console below
   //testPins();
 
@@ -114,28 +127,40 @@ void draw() {
   line(215, 65, 215, 250);
   stroke(on);
   textSize(10);
-  text("0", 660, 200);
-  text("100", 750, 200);
 
   //Draw a filled box for each digital pin that's HIGH (5 volts).
   for (int i = 0; i < 5; i++) {
-    fill(on);
-    text(pinList.get(i+3).name, 40, 90 + i * 40);
-    if (pinList.get(i+3).state == "HIGH") {
-      fill(on);
-      text("HIGH", 158, 90 + i * 40);
-    } 
-    else if (pinList.get(i+3).state == "LOW") {
-      text("LOW", 158, 90 + i * 40);
-      fill(off);
-    } 
-    else {
-      text("null", 158, 90 + i * 40);
-      fill(128, 128, 128);
-    }
-    rect(130, 75 + i * 40, 20, 20);
+   fill(on);
+   Pin pin = pinList.get(i+3);
+   text(pin.name, 40, 90 + i * 40);
+   if (pin.inOut == "out"){
+     if (pin.state == "HIGH") {
+       fill(on);
+       text("HIGH", 158, 90 + i * 40);
+     }
+     else {
+       text("LOW", 158, 90 + i * 40);
+       fill(off);
+     }
+   }
+   else if (pin.inOut == "in") {
+     if (pin.dRead() == "HIGH") {
+       fill(on);
+       text("HIGH", 158, 90 + i * 40);
+     } 
+     else if (pin.dRead() == "LOW") {
+       text("LOW", 158, 90 + i * 40);
+       fill(off);
+     } 
+   }
+   else {
+     text("null", 158, 90 + i * 40);
+     fill(128, 128, 128);
+     }
+   rect(130, 75 + i * 40, 20, 20);
   } 
 
+  
   //Draw a circle whose size corresponds to the value of an analog input.
   for (int i = 0; i < 3; i++) {
     noFill();
@@ -156,6 +181,11 @@ void draw() {
     fill(off);
   }
   rect(488, 80, 60, 20);
+  fill(on);
+  text("OPTO_EN", 430, 95);
+  
+  //Draws buttons for relay switches
+  relayButton();
   
   //Draws temperature gauges and calls updateTempLog
   drawDial();
@@ -198,9 +228,25 @@ void testPins() {
 
 //Toggles button
 void mousePressed() {
-  if (mouseX > 480 && mouseX < 540 && mouseY > 80 && mouseY < 100) {
+  if (mouseX > 488 && mouseX < 548 && mouseY > 80 && mouseY < 100) {
     if (enabled == false) enable();
     else disable();
+  }
+  if (mouseX > 488 && mouseX < 548 && mouseY > 120 && mouseY < 140){
+    if (!R2state) relayOn(pin9);
+    else relayOff(pin9);
+  }
+  if (mouseX > 488 && mouseX < 548 && mouseY > 160 && mouseY < 180){
+    if (!R3state) relayOn(pin10);
+    else relayOff(pin10);
+  }
+  if (mouseX > 488 && mouseX < 548 && mouseY > 200 && mouseY < 220){
+    if (!R4state) relayOn(pin11);
+    else relayOff(pin11);
+  }
+  if (mouseX > 488 && mouseX < 548 && mouseY > 240 && mouseY < 260){
+    if (!R5state) relayOn(pin12);
+    else relayOff(pin12);
   }
 }
 
@@ -210,8 +256,7 @@ void enable() {
     println(pin6.name + " is HIGH. Proceeding...");
     pin5.setpinInOut("INPUT");
     println("LOAD_READY_ISO ready");
-    pin3.setpinInOut("INPUT");
-    pin4.setpinInOut("INPUT");
+  if (pin3.state == "LOW" && pin4.state == "LOW");
     println("VAUX1 and VAUX2 ready");
   } 
   else println("Cannot Enable: OPTO_EN currently LOW");
@@ -225,4 +270,62 @@ void disable() {
   pin6.dWrite("HIGH");
   enabled = false;
   println("Disabled");
+}
+
+//Turns relays on
+void relayOn(Pin relay){
+    relay.dWrite("LOW");
+    if (relay == pin9) R2state = true;
+    else if (relay == pin10) R3state = true;
+    else if (relay == pin11) R4state = true;
+    else if (relay == pin12) R5state = true;
+}
+
+//Turns relays off
+void relayOff(Pin relay){
+    relay.dWrite("HIGH");
+    if (relay == pin9) R2state = false;
+    else if (relay == pin10) R3state = false;
+    else if (relay == pin11) R4state = false;
+    else if (relay == pin12) R5state = false;
+}
+
+//Draw buttons for switching relay states
+void relayButton(){
+  fill(on);
+  text("Relay IN2", 430, 135);
+  text("Relay IN3", 430, 175);
+  text("Relay IN4", 430, 215);
+  text("Relay IN5", 430, 255);
+  if (R2state) {
+    fill(on);
+  }
+  else {
+    fill(off);
+  }
+  rect(488, 120, 60, 20);
+  
+  if (R3state) {
+    fill(on);
+  }
+  else {
+    fill(off);
+  }
+  rect(488, 160, 60, 20);
+  
+  if (R4state) {
+    fill(on);
+  }
+  else {
+    fill(off);
+  }
+  rect(488, 200, 60, 20);
+  
+  if (R5state) {
+    fill(on);
+  }
+  else {
+    fill(off);
+  }
+  rect(488, 240, 60, 20);
 }
