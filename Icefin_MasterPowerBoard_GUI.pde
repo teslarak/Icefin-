@@ -303,35 +303,19 @@ void relayButton(){
   text("Relay IN3", 430, 175);
   text("Relay IN4", 430, 215);
   text("Relay IN5", 430, 255);
-  if (R2state) {
-    fill(on);
-  }
-  else {
-    fill(off);
-  }
+  if (R2state) fill(on);
+  else fill(off);
   rect(488, 120, 60, 20);
   
-  if (R3state) {
-    fill(on);
-  }
-  else {
-    fill(off);
-  }
+  if (R3state) fill(on);
+  else fill(off);
   rect(488, 160, 60, 20);
   
-  if (R4state) {
-    fill(on);
-  }
-  else {
-    fill(off);
-  }
+  if (R4state) fill(on);
+  else fill(off);
   rect(488, 200, 60, 20);
   
-  if (R5state) {
-    fill(on);
-  }
-  else {
-    fill(off);
-  }
+  if (R5state) fill(on);
+  else fill(off);
   rect(488, 240, 60, 20);
 }
