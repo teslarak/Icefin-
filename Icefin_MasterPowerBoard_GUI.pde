@@ -14,6 +14,7 @@ What this does:
    d) Set EN to low
  3) Displays temperature gauges for BOARD_TMP_BUF, TM1_DC_BUF, and TM2_DC_BUF.
  4) Logs temperatures in a separate file, called "Temperature Logs"
+ 5) Controls four relays via toggle button
  
 How to use:
  1) Ensure power board wires are snugly fit inside connectors and there are no shorts.
@@ -40,6 +41,9 @@ List of functions in this tab (name:how to use)
   5) enable():no need to call. Press button on display to toggle enable/disable. 
      only change if enable/disable procedure needs to be changed.
   5) disable():same as enable. Is called in setup() to initially disable.
+  6) relayOn(Pin relay):call to turn a relay on. Put the desired pin as the parameter
+  7) relayOff(Pin relay): call to turn a relay off. Put the desired pin as the parameter
+  8) relayButton():draws the relay buttons. Is called in draw().
  
 Example code from StandardFirmata Firmware which "Demonstrates the reading of 
 digital and analog pins of an Arduino board running the StandardFirmata firmware."
@@ -56,11 +60,11 @@ import cc.arduino.*;
 Arduino arduino;
 color off = color(4, 79, 111); //darker blue
 color on = color(84, 145, 158); //lighter blue
-boolean enabled = false;
-boolean R2state = false;
-boolean R3state = false;
-boolean R4state = false;
-boolean R5state= false;
+boolean enabled = false; //on/off for OPTO_EN
+boolean R2state = false; //on/off for IN2 relay
+boolean R3state = false; //on/off for IN3 relay
+boolean R4state = false; //on/off for IN4 relay
+boolean R5state = false; //on/off for IN5 relay
 ArrayList<Pin> pinList = new ArrayList<Pin>(8);
 //Note: on non-mac computers you can change the semicolons separating the time to colons. 
 //On macs, colons display as slashes in the filename
@@ -91,11 +95,11 @@ void setup() {
   pinList.add(pin11);
   pinList.add(pin12);
   
-  disable();
   relayOff(pin9);
   relayOff(pin10);
   relayOff(pin11);
   relayOff(pin12);
+  disable();
   for (int i = 0; i < 8; i++) {
     pinList.get(i).begin();
   }
@@ -271,6 +275,8 @@ void disable() {
   enabled = false;
   println("Disabled");
 }
+
+//RELAY FUNCTIONS
 
 //Turns relays on
 void relayOn(Pin relay){
