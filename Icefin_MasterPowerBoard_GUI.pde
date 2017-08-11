@@ -1,9 +1,9 @@
 /*
 >>>>>>>>>>>>>>>>>>>>>>>>Icefin Master Power Board GUI for Testing<<<<<<<<<<<<<<<<<<<<<<<
 Main tab - structure for program
- 
+
 IMPORTANT: pin6 aka OPTO_EN must be HIGH before enabling
- 
+
 What this does:
  1) Shows status of all signals
  2) Can enable and disable the Power Board
@@ -72,12 +72,12 @@ String timeStamp = month() + "-" + day() + "-" + year() + " " + hour() + ";" + m
 
 //Runs first and sets up program
 void setup() {
-  size(1160, 280);
+  size(1440, 280);
   
   // Prints out the available serial ports.
   println("List of available serial ports: ");
   println(Arduino.list());
-  arduino = new Arduino(this, "/dev/tty.usbmodem1451", 57600);
+  arduino = new Arduino(this, "/dev/tty.usbmodem1461", 57600);
   // Use the name of the serial port corresponding to your Arduino (in double-quotes), 
   //as in the following line. arduino = new Arduino(this, "/dev/tty.usbmodem621", 57600);
 

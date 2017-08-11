@@ -19,6 +19,8 @@ List of functions in this tab (name:how to use)
      Vicor chips.
   9) checkVaux():call if you want to check if VAUX1 and VAUX2 are ready to power on/
      run temperature tests.
+  10) calcAvg(ArrayList<Float> List, float tempData):call if you want to take a changing 
+      value put each iteration of the value in a list and average that list. Returns avg
 */
 
 ControlP5 cp5;
@@ -28,8 +30,14 @@ color dialColorV2 = on;
 Knob tempKnobBoard;
 Knob tempKnobVicor1;
 Knob tempKnobVicor2;
+Chart tempChartBoard;
+int numSamples = 64;
+ArrayList<Float> avgVicor1List = new ArrayList<Float>(numSamples);
+ArrayList<Float> avgVicor2List = new ArrayList<Float>(numSamples);
 Table tempTable = new Table();
 float newVal;
+float tempVicor1Average;
+float tempVicor2Average;
 int tUnavailable = -130;
 
 //Creates the dials (also called knobs or gauges).
@@ -72,6 +80,18 @@ void createDial(){
     .setColorForeground(dialColorV2)
     .setColorActive(dialColorV2)
     .setUpdate(true);   
+    
+  tempChartBoard = cp5.addChart("Board Temperature")
+                      .setPosition(1200, 110)
+                      .setSize(200,100)
+                      .setRange(0, 150)
+                      .setView(Chart.LINE)
+                      .setStrokeWeight(1.5)
+                      .setColorCaptionLabel(color(255))
+                      .setLabel("Board Temperature");
+                      
+  tempChartBoard.addDataSet("incoming");
+  tempChartBoard.setData("incoming", new float[100]);
 }
 
 //Draws the dials
@@ -99,14 +119,18 @@ void drawDial(){
   if (tempVicor2 >= 90) {
     dialColorV2 = color(204, 0, 0); //red
   }
-  else dialColorV2 = on;  
+  else dialColorV2 = on; 
+  
+  tempVicor1Average = calcAvg(avgVicor1List, tempVicor1);
+  tempVicor2Average = calcAvg(avgVicor2List, tempVicor2);
+  
   tempKnobBoard.setValue(tempBoard);
   tempKnobBoard.setColorForeground(dialColorBoard);
   tempKnobBoard.setColorActive(dialColorBoard);
-  tempKnobVicor1.setValue(tempVicor1);
+  tempKnobVicor1.setValue(tempVicor1Average);
   tempKnobVicor1.setColorForeground(dialColorV1);
   tempKnobVicor1.setColorActive(dialColorV1);
-  tempKnobVicor2.setValue(tempVicor2);
+  tempKnobVicor2.setValue(tempVicor2Average);
   tempKnobVicor2.setColorForeground(dialColorV2);
   tempKnobVicor2.setColorActive(dialColorV2);
   
@@ -121,8 +145,10 @@ void drawDial(){
   
   textSize(24);
   text(round(tempBoard) + " ˚C", 680, 105);
-  text(round(tempVicor1) + " ˚C", 860, 105); 
-  text(round(tempVicor2) + " ˚C", 1040, 105); 
+  text(round(tempVicor1Average) + " ˚C", 860, 105); 
+  text(round(tempVicor2Average) + " ˚C", 1040, 105); 
+  
+  tempChartBoard.push("incoming", tempBoard);
   
   if (millis()%2000 < 20) {
     updateTempLog(tempBoard, tempVicor1, tempVicor2);
@@ -195,4 +221,19 @@ boolean checkVaux(){
     return true;
   }
   else return false;
+}
+
+//Calculates average of a list of changing data
+float calcAvg(ArrayList<Float> List, float tempData){
+  if (List.size() == numSamples){
+    List.remove(0);
+  }
+  List.add(tempData);
+  float sum = 0;
+  float out;
+  for (float element : List) {
+    sum += element;
+  }
+  out = sum / List.size();
+  return out;
 }

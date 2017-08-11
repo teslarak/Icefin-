@@ -140,7 +140,7 @@ Pin pin5 = new Pin("LOAD_READY_ISO", 5, "digital", "in");
 Pin pin6 = new Pin("OPTO_EN", 6, "digital", "out");
 Pin test = new Pin("test", 13, "digital", "out");
 
-//Vicor signal control breakouts
+//Vicor signal relay control pins
 Pin pin9 = new Pin("IN2", 9, "digital", "out");
 Pin pin10 = new Pin("IN3", 10, "digital", "out");
 Pin pin11 = new Pin("IN4", 11, "digital", "out");
